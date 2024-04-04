@@ -5,6 +5,7 @@
 #include "fcntl.h"
 // #include "unistd.h"
 
+
 // Parsed command representation
 #define EXEC  1
 #define REDIR 2
@@ -58,8 +59,9 @@ struct cmd *parsecmd(char*);
 void
 runcmd(struct cmd *cmd)
 {
+  static int bgpid = -1;
   int p[2];
-  //struct backcmd *bcmd;
+  struct backcmd *bcmd;
   struct execcmd *ecmd;
   struct listcmd *lcmd;
   struct pipecmd *pcmd;
@@ -129,9 +131,27 @@ runcmd(struct cmd *cmd)
     break;
 
   case BACK:
-    printf(2, "Backgrounding not implemented\n");
+    bcmd = (struct backcmd*) cmd;
+    if (fork1() == 0){
+      //BACK: bgpid = getpid();
+      runcmd(bcmd->cmd); //child process continues running whereas parent immediately breaks
+    }
     break;
   }
+
+  /* BACK:  
+  if (bgpid != -1){
+    //exits at least 1 background process
+
+    int status;
+    
+    while (waitpid(bgpid, &status, WNOHANG));
+
+    if (WIFEEXITED(status) || WIFSIGNALED(status)){ //is zombie
+      wait();
+    } 
+  }
+  */
   exit();
 }
 
