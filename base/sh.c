@@ -15,10 +15,6 @@
 
 #define MAXARGS 10
 
-#define HIST_SIZE 10
-char* hist_arr[HIST_SIZE];
-int hist_counter = 0;
-
 struct cmd {
   int type;
 };
@@ -58,50 +54,6 @@ struct backcmd {
 int fork1(void);  // Fork but panics on failure.
 void panic(char*);
 struct cmd *parsecmd(char*);
-
-int idx = 0;
-void increment_history(char *cmd) {
-    // Free the oldest command's memory if the history array is full.
-    if (hist_counter >= HIST_SIZE) {
-        free(hist_arr[idx]);
-    } 
-    // else increment the counter until the array is full.
-    else 
-    {   
-        hist_counter++;
-    }
-    
-    // Allocate memory for the new command and
-    // copy the command into the newly allocated space.
-    hist_arr[idx] = malloc(100 * sizeof(char));
-    strcpy(hist_arr[idx], cmd);
-    
-    // Update the index for the next command, wrapping around if necessary.
-    idx = (idx + 1) % HIST_SIZE;
-}
-
-
-void print_history(unsigned int n) 
-{
-    int start, i;
-    // Determine the start index based on the number of commands and buffer size.
-    if (hist_counter < HIST_SIZE) 
-    {
-        start = 0;
-    } 
-    else 
-    {
-        start = idx;
-    }
-
-    for (i = 0; i < hist_counter && i < n; i++) 
-    {
-        int pos = (start + i) % HIST_SIZE;
-        printf(1, "Previous command %d: %s\n", i + 1, hist_arr[pos]);
-    }
-}
-
-
 
 // Execute cmd.  Never returns.
 void
@@ -229,8 +181,7 @@ main(void)
   }
 
   // Read and run input commands.
-  while(getcmd(buf, sizeof(buf)) >= 0)
-  {
+  while(getcmd(buf, sizeof(buf)) >= 0){
     if(buf[0] == 'c' && buf[1] == 'd' && buf[2] == ' '){
       // Chdir must be called by the parent, not the child.
       buf[strlen(buf)-1] = 0;  // chop \n
@@ -238,35 +189,9 @@ main(void)
         printf(2, "cannot cd %s\n", buf+3);
       continue;
     }
-
-    //Anita
-    if (strcmp(buf, "hist print\n") == 0) {
-        print_history(HIST_SIZE);
-        continue;  // Skip adding history print command to history.
-    }
-
-    // if(fork1() == 0)
-    //   runcmd(parsecmd(buf));
-    // wait();
-    
-    // Anita
-    // Execute the command or replay it from history.
-    if (fork1() == 0) {
-        if (buf[0] == 'h' && buf[3] == 't' && buf[5] != ' ') {
-            unsigned int idx = buf[5] - '0';
-            if (buf[5] == '1' && buf[6] == '0') idx = 10;
-            runcmd(parsecmd(hist_arr[idx - 1]));
-        } else {
-            runcmd(parsecmd(buf));
-        }
-    }
+    if(fork1() == 0)
+      runcmd(parsecmd(buf));
     wait();
-
-    // Now increment history for new commands.
-    if (!(buf[0] == 'h' && buf[3] == 't' && buf[5] != ' ')) {
-        increment_history(buf);
-    }
-    
   }
   exit();
 }
