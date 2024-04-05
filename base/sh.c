@@ -59,47 +59,47 @@ int fork1(void);  // Fork but panics on failure.
 void panic(char*);
 struct cmd *parsecmd(char*);
 
-// int idx = 0;
-// void increment_history(char *cmd) {
-//     // Free the oldest command's memory if the history array is full.
-//     if (hist_counter >= HIST_SIZE) {
-//         free(hist_arr[idx]);
-//     } 
-//     // else increment the counter until the array is full.
-//     else 
-//     {   
-//         hist_counter++;
-//     }
+int idx = 0;
+void increment_history(char *cmd) {
+    // Free the oldest command's memory if the history array is full.
+    if (hist_counter >= HIST_SIZE) {
+        free(hist_arr[idx]);
+    } 
+    // else increment the counter until the array is full.
+    else 
+    {   
+        hist_counter++;
+    }
     
-//     // Allocate memory for the new command and
-//     // copy the command into the newly allocated space.
-//     hist_arr[idx] = malloc(100 * sizeof(char));
-//     strcpy(hist_arr[idx], cmd);
+    // Allocate memory for the new command and
+    // copy the command into the newly allocated space.
+    hist_arr[idx] = malloc(100 * sizeof(char));
+    strcpy(hist_arr[idx], cmd);
     
-//     // Update the index for the next command, wrapping around if necessary.
-//     idx = (idx + 1) % HIST_SIZE;
-// }
+    // Update the index for the next command, wrapping around if necessary.
+    idx = (idx + 1) % HIST_SIZE;
+}
 
 
-// void print_history(unsigned int n) 
-// {
-//     int start, i;
-//     // Determine the start index based on the number of commands and buffer size.
-//     if (hist_counter < HIST_SIZE) 
-//     {
-//         start = 0;
-//     } 
-//     else 
-//     {
-//         start = idx;
-//     }
+void print_history(unsigned int n) 
+{
+    int start, i;
+    // Determine the start index based on the number of commands and buffer size.
+    if (hist_counter < HIST_SIZE) 
+    {
+        start = 0;
+    } 
+    else 
+    {
+        start = idx;
+    }
 
-//     for (i = 0; i < hist_counter && i < n; i++) 
-//     {
-//         int pos = (start + i) % HIST_SIZE;
-//         printf(1, "Previous command %d: %s\n", i + 1, hist_arr[pos]);
-//     }
-// }
+    for (i = 0; i < hist_counter && i < n; i++) 
+    {
+        int pos = (start + i) % HIST_SIZE;
+        printf(1, "Previous command %d: %s\n", i + 1, hist_arr[pos]);
+    }
+}
 
 
 
