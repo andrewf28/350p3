@@ -132,17 +132,22 @@ runcmd(struct cmd *cmd)
 
   case REDIR:
     rcmd = (struct redircmd*)cmd;
-    printf(2, "file %s\n cmd %s\n",rcmd->file, rcmd->cmd);
-    int fd = open("output.txt", O_WRONLY | O_CREATE);
+    printf(2, "file %s\n cmd %s\n", rcmd->file, rcmd->cmd);
+    int fd = open(rcmd->file, O_WRONLY | O_CREATE);
     if (fd == -1) {
-        printf(2,"file open didn't work");
+        printf(2, "file open didn't work: %d\n", fd);
+        break;
     }
-    if (dup2(fd, 0) == -1) {
-        printf(2,"dup2 didn't work");
+    printf(2,"fd is completely fine\n");
+    if (dup2(fd, 1) == -1) {
+        printf(2, "dup2 didn't work: %d\n", dup2(fd, 1));
+        close(fd);
+        break;
     }
     close(fd);
-    printf("cmd %s",ecmd->argv[0]);
-    // exec(ecmd->argv[0], ecmd->argv);
+    runcmd(rcmd->cmd);
+
+    //Looks like the cmd part of the redircmd struct doesn't grab the command I need to run?
     break;
 
   case LIST:
