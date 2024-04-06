@@ -132,22 +132,38 @@ runcmd(struct cmd *cmd)
 
   case REDIR:
     rcmd = (struct redircmd*)cmd;
-    printf(2, "file %s\n cmd %s\n", rcmd->file, rcmd->cmd);
-    int fd = open(rcmd->file, O_WRONLY | O_CREATE);
-    if (fd == -1) {
-        printf(2, "file open didn't work: %d\n", fd);
-        break;
+    printf(2, "file %s\n mode %d\n", rcmd->file, rcmd->mode);
+
+    int fd;
+    if (rcmd->mode < 1) {
+        fd = open(rcmd->file, O_RDONLY);
+        if (fd == -1) {
+            printf(2, "file open for input redirection didn't work: %d\n", fd);
+            break;
+        }
+        if (dup2(fd, 0) == -1) {
+            printf(2, "dup2 for input redirection didn't work: %d\n", dup2(fd, 0));
+            close(fd);
+            break;
+        }
+    } else {
+        fd = open(rcmd->file, O_WRONLY | O_CREATE);
+        if (fd == -1) {
+            printf(2, "file open for output redirection didn't work: %d\n", fd);
+            break;
+        }
+        if (dup2(fd, 1) == -1) {
+            printf(2, "dup2 for output redirection didn't work: %d\n", dup2(fd, 1));
+            close(fd);
+            break;
+        }
     }
-    printf(2,"fd is completely fine\n");
-    if (dup2(fd, 1) == -1) {
-        printf(2, "dup2 didn't work: %d\n", dup2(fd, 1));
-        close(fd);
-        break;
-    }
+
     close(fd);
     runcmd(rcmd->cmd);
 
     //Looks like the cmd part of the redircmd struct doesn't grab the command I need to run?
+    // nvm i'm j reading it wrong
     break;
 
   case LIST:
