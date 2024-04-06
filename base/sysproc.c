@@ -27,6 +27,15 @@ sys_wait(void)
 }
 
 int
+sys_waitzombiepid(void)
+{
+  int pid; 
+  if(argint(0, &pid) < 0)
+    return -1;
+  return waitzombiepid(pid);
+}
+
+int
 sys_kill(void)
 {
   int pid;

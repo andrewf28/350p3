@@ -312,6 +312,35 @@ wait(void)
   }
 }
 
+/* Returns pid if successfully reaped zombie; return 0 if still not zombie process; return -1 if process by pid doesn't exist */
+int waitzombiepid(int pid){
+  struct proc *p;
+  acquire(&ptable.lock);
+  for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
+    if (p->pid == pid){
+      if (p->state == ZOMBIE){
+        // Found one.
+        pid = p->pid;
+        kfree(p->kstack);
+        p->kstack = 0;
+        freevm(p->pgdir);
+        p->pid = 0;
+        p->parent = 0;
+        p->name[0] = 0;
+        p->killed = 0;
+        p->state = UNUSED;
+        release(&ptable.lock);
+        return pid;
+      }else{
+        release(&ptable.lock);
+        return 0;
+      }
+    }
+  }
+  release(&ptable.lock);
+  return -1;
+}
+
 //PAGEBREAK: 42
 // Per-CPU process scheduler.
 // Each CPU calls scheduler() after setting itself up.
@@ -559,6 +588,8 @@ for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
  	  cprintf("%s \t %d \t RUNNING \t %d \n ", p->name,p->pid,p->priority);
 	else if(p->state == RUNNABLE)
  	  cprintf("%s \t %d \t RUNNABLE \t %d \n ", p->name,p->pid,p->priority);
+  else if(p->state == ZOMBIE)
+ 	  cprintf("%s \t %d \t ZOMBIE \t %d \n ", p->name,p->pid,p->priority);
 }
 release(&ptable.lock);
 return 22;

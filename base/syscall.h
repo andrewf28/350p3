@@ -24,3 +24,4 @@
 #define SYS_cps  23
 #define SYS_chpr  24
 #define SYS_dup2  25
+#define SYS_waitzombiepid 26

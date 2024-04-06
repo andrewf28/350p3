@@ -185,28 +185,26 @@ runcmd(struct cmd *cmd)
 
   case BACK:
     bcmd = (struct backcmd*) cmd;
+    bgpid = -1;
     if (fork1() == 0){
-      //BACK: bgpid = getpid();
-      runcmd(bcmd->cmd); //child process continues running whereas parent immediately breaks
+      bgpid = getpid();
+      runcmd(bcmd->cmd); //child process continues running whereas parent immediately exits
     }
     break;
   }
-
-  /* BACK:  
+  
   if (bgpid != -1){
-    //exits at least 1 background process
-
-    int status;
-    
-    while (waitpid(bgpid, &status, WNOHANG));
-
-    if (WIFEEXITED(status) || WIFSIGNALED(status)){ //is zombie
-      wait();
-    } 
+    int result = waitzombiepid(bgpid);
+    if (result == bgpid){ //successfully reaped zombie process
+      bgpid = -1;
+    }else if (result == -1){
+      bgpid = -1;
+    }//if not zombie / result == 0 --> do nothing
   }
-  */
+
   exit();
 }
+
 
 int
 getcmd(char *buf, int nbuf)
