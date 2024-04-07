@@ -1,0 +1,13 @@
+{
+  "files.associations": {
+    "random": "c",
+    "condition_variable": "c",
+    "mutex": "c",
+    "atomic": "c",
+    "__mutex_base": "c",
+    "semaphore": "c"
+  },
+  "C_Cpp.intelliSenseCacheSize": 0,
+  "C_Cpp.intelliSenseMemoryLimit": 256,
+  "terminal.integrated.enablePersistentSessions": false
+}

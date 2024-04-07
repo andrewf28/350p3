@@ -221,7 +221,6 @@ runcmd(struct cmd *cmd)
   exit();
 }
 
-
 int
 getcmd(char *buf, int nbuf)
 {
