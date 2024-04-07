@@ -167,34 +167,55 @@ runcmd(struct cmd *cmd)
     break;
 
   case LIST:
-    lcmd = (struct listcmd*)cmd;
-    if(fork1() == 0) {
+    lcmd = (struct listcmd*)cmd; 
+    
+    int pid = fork1(); 
+    if(pipe(p) < 0)
+        panic("fork1 failed\n");
+    if(pid == 0) {
         runcmd(lcmd->left);
+        exit(); 
+    } else {
+        wait(); 
+        runcmd(lcmd->right);
     }
-    wait();
-    runcmd(lcmd->right);
     break;
+    
 
   case PIPE:
-    pcmd = (struct pipecmd*)cmd;
-    if(pipe(p) < 0)
-        panic("pipe");
-    if(fork1() == 0) {
-        close(1);       // Close standard output
-        dup(p[1]);      // Duplicate the write end of the pipe to standard output
-        close(p[0]);    // Close the read end of the pipe
-        close(p[1]);
-        runcmd(pcmd->left);
+    pcmd = (struct pipecmd*)cmd; 
+    if(pipe(p) < 0){
+        panic("pipe"); 
     }
-    if(fork1() == 0) {
-        close(0);       // Close standard input
-        dup(p[0]);      // Duplicate the read end of the pipe to standard input
-        close(p[1]);    // Close the write end of the pipe
-        close(p[0]);
-        runcmd(pcmd->right);
+
+    int pid1 = fork1();
+    if(pid1 < 0) {
+        panic("fork1 failed");
+    } else if(pid1 == 0) {
+        close(1);  
+        close(p[0]);      
+        dup(p[1]);                  
+        runcmd(pcmd->left); 
+        exit();          
     }
+
+    // Fork the second process for the right side of the pipe.
+    int pid2 = fork1();
+    if(pid2 < 0) {
+        panic("fork1 failed");
+    } else if(pid2 == 0) {
+        close(0);              
+        close(p[1]);    
+        dup(p[0]);           
+        runcmd(pcmd->right); 
+        exit();            
+    }
+
+    // Parent closes both ends of the pipe; children have duplicated what they need.
     close(p[0]);
     close(p[1]);
+
+    // Parent waits for both child processes to complete.
     wait();
     wait();
     break;
