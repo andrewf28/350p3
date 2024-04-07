@@ -72,42 +72,42 @@ sys_dup2(void)
     int old_fd, new_fd;
     struct file *f1, *f2;
 
-    cprintf("sys_dup2 called\n");
+    // cprintf("sys_dup2 called\n");
 
     if (argfd(0, &old_fd, &f1) < 0) {
-        cprintf("sys_dup2: argfd failed for old_fd\n");
+        // cprintf("sys_dup2: argfd failed for old_fd\n");
         return -1;
     }
 
     if (argint(1, &new_fd) < 0) {
-        cprintf("sys_dup2: argint failed for new_fd\n");
+        // cprintf("sys_dup2: argint failed for new_fd\n");
         return -1;
     }
 
-    cprintf("sys_dup2: old_fd=%d, new_fd=%d\n", old_fd, new_fd);
+    // cprintf("sys_dup2: old_fd=%d, new_fd=%d\n", old_fd, new_fd);
 
     if (new_fd < 0 || new_fd >= NOFILE) {
-        cprintf("sys_dup2: new_fd out of range\n");
+        // cprintf("sys_dup2: new_fd out of range\n");
         return -1;
     }
 
     if (new_fd != old_fd) {
         f2 = myproc()->ofile[new_fd];
         if (f2) {
-            cprintf("sys_dup2: closing existing file at new_fd\n");
+            // cprintf("sys_dup2: closing existing file at new_fd\n");
             fileclose(f2);
         }
 
-        cprintf("sys_dup2: duplicating file from old_fd to new_fd\n");
+        // cprintf("sys_dup2: duplicating file from old_fd to new_fd\n");
         myproc()->ofile[new_fd] = f1;
 
         if (filedup(f1) < 0) {
-            cprintf("sys_dup2: filedup failed\n");
+            // cprintf("sys_dup2: filedup failed\n");
             return -1;
         }
     }
 
-    cprintf("sys_dup2: success, returning new_fd=%d\n", new_fd);
+    // cprintf("sys_dup2: success, returning new_fd=%d\n", new_fd);
     return new_fd;
 }
 

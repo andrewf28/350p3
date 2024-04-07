@@ -132,28 +132,28 @@ runcmd(struct cmd *cmd)
 
   case REDIR:
     rcmd = (struct redircmd*)cmd;
-    printf(2, "file %s\n mode %d\n", rcmd->file, rcmd->mode);
+    // printf(2, "file %s\n mode %d\n", rcmd->file, rcmd->mode);
 
     int fd;
     if (rcmd->mode < 1) {
         fd = open(rcmd->file, O_RDONLY);
         if (fd == -1) {
-            printf(2, "file open for input redirection didn't work: %d\n", fd);
+            // printf(2, "file open for input redirection didn't work: %d\n", fd);
             break;
         }
         if (dup2(fd, 0) == -1) {
-            printf(2, "dup2 for input redirection didn't work: %d\n", dup2(fd, 0));
+            // printf(2, "dup2 for input redirection didn't work: %d\n", dup2(fd, 0));
             close(fd);
             break;
         }
     } else {
         fd = open(rcmd->file, O_WRONLY | O_CREATE);
         if (fd == -1) {
-            printf(2, "file open for output redirection didn't work: %d\n", fd);
+            // printf(2, "file open for output redirection didn't work: %d\n", fd);
             break;
         }
         if (dup2(fd, 1) == -1) {
-            printf(2, "dup2 for output redirection didn't work: %d\n", dup2(fd, 1));
+            // printf(2, "dup2 for output redirection didn't work: %d\n", dup2(fd, 1));
             close(fd);
             break;
         }
