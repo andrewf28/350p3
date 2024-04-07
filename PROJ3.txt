@@ -1,0 +1,16 @@
+Programming Work Distribution
+Chao - 3.1, 3.2 
+Andrew - 3.3
+Jiaming - 3.4, Extra Credit
+Anita - 3.5 
+
+Extra Credit: 
+- waitzombiepid(int pid) function was implemented originally
+for the background process shell feature. 
+    - implemented in proc.c as a system call
+        - changed a bunch of other files to reflect the change as well like headers etc. 
+    - it loops through the ptable to look for process with input pid
+        - if that process is a zombie, it goes through the reaping process (copied from wait())
+        - the difference with the wait() function is that this doesn't do sleep() which is the blocking function
+        - so if the process is still running, no other process is blocked to wait for it to finish
+- it's my version of waitpid that i implemented. 
